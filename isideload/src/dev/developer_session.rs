@@ -87,6 +87,23 @@ impl DeveloperSession {
         self.client.clone()
     }
 
+    /// Returns the `adsid` (a.k.a. dsid) bound to this session.
+    ///
+    /// Added by EscapeOS fork: together with `get_token()` it lets callers
+    /// persist the Apple session and rebuild it later via
+    /// `DeveloperSession::new(...)` without a fresh login / 2FA.
+    pub fn get_adsid(&self) -> &str {
+        &self.adsid
+    }
+
+    /// Returns a clone of the `com.apple.gs.xcode.auth` app token backing
+    /// this session.
+    ///
+    /// Added by EscapeOS fork: see `get_adsid()` for the persistence use-case.
+    pub fn get_token(&self) -> AppToken {
+        self.token.clone()
+    }
+
     async fn send_dev_request_internal(
         &mut self,
         url: &str,
