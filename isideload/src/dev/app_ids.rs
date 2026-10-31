@@ -2,6 +2,7 @@ use crate::{
     dev::{
         developer_session::DeveloperSession,
         device_type::{DeveloperDeviceType, dev_url},
+        normalize_app_names,
         teams::DeveloperTeam,
     },
     util::plist::{PlistDataExtract, SensitivePlistAttachment},
@@ -51,7 +52,8 @@ pub struct Profile {
     pub is_free_provisioning_profile: Option<bool>,
 }
 
-#[async_trait::async_trait]
+#[cfg_attr(feature = "wasm", async_trait::async_trait(?Send))]
+#[cfg_attr(not(feature = "wasm"), async_trait::async_trait)]
 pub trait AppIdsApi {
     fn developer_session(&mut self) -> &mut DeveloperSession;
 
@@ -65,7 +67,7 @@ pub trait AppIdsApi {
         let body = plist!(dict {
             "teamId": &team.team_id,
             "identifier": identifier,
-            "name": name,
+            "name": normalize_app_names(name),
         });
 
         let app_id: AppId = self

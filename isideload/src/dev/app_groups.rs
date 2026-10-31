@@ -2,6 +2,7 @@ use crate::dev::{
     app_ids::AppId,
     developer_session::DeveloperSession,
     device_type::{DeveloperDeviceType, dev_url},
+    normalize_app_names,
     teams::DeveloperTeam,
 };
 use plist_macro::plist;
@@ -17,7 +18,8 @@ pub struct AppGroup {
     pub application_group: String,
 }
 
-#[async_trait::async_trait]
+#[cfg_attr(feature = "wasm", async_trait::async_trait(?Send))]
+#[cfg_attr(not(feature = "wasm"), async_trait::async_trait)]
 pub trait AppGroupsApi {
     fn developer_session(&mut self) -> &mut DeveloperSession;
 
@@ -52,7 +54,7 @@ pub trait AppGroupsApi {
     ) -> Result<AppGroup, Report> {
         let body = plist!(dict {
             "teamId": &team.team_id,
-            "name": name,
+            "name": normalize_app_names(name),
             "identifier": identifier,
         });
 
